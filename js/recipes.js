@@ -266,7 +266,6 @@ function saveRecipeInstructions(e) {
 
     Storage.editRecipeInstructions(name, instructions.innerHTML);
 
-    console.log(instructions);
     instructions.setAttribute('contenteditable', 'false');
     instructions.style.backgroundColor = 'beige'
     instructions.blur();
