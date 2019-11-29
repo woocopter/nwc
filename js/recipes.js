@@ -1,4 +1,3 @@
-console.log("!")
 
 const searchBtn = document.querySelector('#submit');
 const searchInput = document.querySelector('#search');
@@ -62,7 +61,20 @@ class Storage {
     
         localStorage.setItem('recipes', JSON.stringify(recipes));
     }
+
+    static editRecipeInstructions(name, instructions) {
+        let recipes = Storage.getRecipesFromStorage();
+        
+        for(let i = 0; i < recipes.length; i++) {
+            if(recipes[i].name === name) {
+                recipes[i].instructions = instructions;
+            }
+        }
+        
+        localStorage.setItem('recipes', JSON.stringify(recipes));
+    }
 }
+
 
 
 
@@ -105,7 +117,10 @@ function addRecipeToList(recipe) {
     let output = `<span class="instructions col-sm-8">
     <h3>Instructions:</h3>
     <p>${recipe.instructions}</p>
+    <span class="edit"><i class="far fa-edit"></i> Edit</span>
+    <span class="save ml-5"><i class="far fa-save"></i> Save</span>
     </span>`;
+
 
     // build new row
     span.appendChild(h3);
@@ -186,6 +201,7 @@ document.querySelector('#showRecipeForm').addEventListener('click', e => {
     }
 });
 
+
 // toggle recipe details
 document.querySelector('.recipeList').addEventListener('click', e => {
     if(e.target.classList.contains('recipe')) {
@@ -220,4 +236,73 @@ document.querySelector('#recipeForm').addEventListener('submit', e => {
     addRecipeToList(recipe);
     Storage.addRecipeToStorage(recipe);
     clearFields();
+});
+
+
+// edit recipe
+function makeTextEditable(e) {
+    let pText;
+    if(e.target.classList.contains('edit')) {
+        pText = e.target.previousSibling.previousSibling;
+    } else if(e.target.classList.contains('fa-edit')) {
+        pText = e.target.parentElement.previousSibling.previousSibling;
+    }
+    pText.setAttribute('contenteditable', 'true');
+    pText.style.backgroundColor = 'white';
+    pText.focus();
+}
+
+
+editBtns = document.querySelectorAll('.edit');
+editBtns.forEach(btn => btn.addEventListener('click', makeTextEditable));
+
+
+// save recipe instructions
+function saveRecipeInstructions(e) {
+    const instructions = this.previousElementSibling.previousElementSibling;
+
+    // update local storage
+    const name = e.target.parentElement.parentElement.previousElementSibling.textContent.trim();
+
+    Storage.editRecipeInstructions(name, instructions.innerHTML);
+
+    console.log(instructions);
+    instructions.setAttribute('contenteditable', 'false');
+    instructions.style.backgroundColor = 'beige'
+    instructions.blur();
+
+    
+}
+
+saveBtns = document.querySelectorAll('.save');
+saveBtns.forEach(btn => btn.addEventListener('click', saveRecipeInstructions));
+
+
+
+// filter recipes
+const inputFilter = document.querySelector('#filter');
+
+document.querySelector('#filter').addEventListener('keyup', (e) => {
+    const recipeList = [...document.querySelectorAll('.recipe')];
+
+    let dontDisplay = recipeList.filter(item => {
+        return (!item.textContent.toLowerCase().includes(inputFilter.value.toLowerCase()));
+    });
+
+    recipeList.forEach(recipe => {
+        if(dontDisplay.includes(recipe)) {
+            recipe.style.display = 'none';
+            recipe.nextElementSibling.style.display = 'none'; // remove details if displayed
+            
+            // set folder icon to closed
+            if(recipe.firstElementChild.classList.contains('fa-folder-open')) {
+                recipe.firstElementChild.classList.remove('fa-folder-open');
+                recipe.firstElementChild.classList.add('fa-folder');
+            }
+            
+        } else {
+            recipe.style.display = 'list-item';
+        }
+    });
+
 });

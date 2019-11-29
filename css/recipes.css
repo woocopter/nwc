@@ -53,10 +53,11 @@ body {
 }
 
 .ingredientsList li {
-    background-color: #fff;
+    background-color: beige;
     border-bottom: none;
     color: black;
     font-size: 1em;
+    list-style-type: disc;
 }
 
 .ingredientsList, .instructions {
